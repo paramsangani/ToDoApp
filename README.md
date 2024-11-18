@@ -58,3 +58,27 @@ To run this application, ensure you have the following installed on your system:
     npx react-native run-ios
     ```
 
+## Dependencies
+
+This project uses the following major dependencies:
+	•	React Native: Framework for building native applications.
+	•	@react-native-async-storage/async-storage: To persist tasks locally.
+	•	Animated: For task animations.
+Install all dependencies via `npm install`
+
+## How it works
+
+Add Task
+	1.	Type the task in the input field.
+	2.	Click the + button to add the task to the list.
+
+Edit Task
+	1.	Long-press on a task to open the options menu.
+	2.	Select Edit to update the task.
+
+Delete Task
+	1.	Click the X button to delete the task with an animation.
+
+Toggle Task Completion
+	1.	Tap on a task to toggle its completion status.
+    2.  Long hold on task to edit
