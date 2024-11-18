@@ -8,9 +8,20 @@ import {
   Text,
   Alert,
   Animated,
+  LayoutAnimation,
+  Platform,
+  UIManager,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import styles from './Styles';
+
+// Enable LayoutAnimation on Android
+if (
+  Platform.OS === 'android' &&
+  UIManager.setLayoutAnimationEnabledExperimental
+) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
 
 export default function App() {
   const [task, setTask] = useState('');
@@ -63,11 +74,25 @@ export default function App() {
   };
 
   const toggleTask = (taskId) => {
-    setTasks(
-      tasks.map((item) =>
+    // Animate the layout changes
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+
+    setTasks((prevTasks) => {
+      // Update the completed status of the task
+      const updatedTasks = prevTasks.map((item) =>
         item.id === taskId ? { ...item, completed: !item.completed } : item
-      )
-    );
+      );
+
+      // Sort tasks: incomplete first, then completed
+      const sortedTasks = [...updatedTasks].sort((a, b) => {
+        if (a.completed === b.completed) {
+          return 0; // Maintain original order
+        }
+        return a.completed ? 1 : -1; // Incomplete tasks come first
+      });
+
+      return sortedTasks;
+    });
   };
 
   const longPressMenu = (taskId, text) => {
@@ -94,8 +119,8 @@ export default function App() {
   };
 
   const updateTask = () => {
-    setTasks(
-      tasks.map((item) =>
+    setTasks((prevTasks) =>
+      prevTasks.map((item) =>
         item.id === editingTaskId ? { ...item, text: editingText } : item
       )
     );
@@ -157,7 +182,8 @@ const TaskItem = ({
         duration: 500,
         useNativeDriver: true,
       }).start(() => {
-        item.isNew = false; // Be cautious with mutating props
+        // Mark the task as no longer new
+        item.isNew = false;
       });
     }
   }, []);

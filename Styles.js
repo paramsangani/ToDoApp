@@ -12,6 +12,9 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 20,
     color: '#333',
+    textAlign:'center',
+    color: 'blue'
+
   },
   inputContainer: {
     flexDirection: 'row',
@@ -19,6 +22,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 20,
     paddingHorizontal: 10,
+    color: "grey",
   },
   input: {
     flex: 1,
@@ -27,6 +31,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 5,
     paddingHorizontal: 10,
+    color: "grey",
   },
   addButton: {
     backgroundColor: '#5C5CFF',
