@@ -69,16 +69,16 @@ Install all dependencies via `npm install`
 ## How it works
 
 Add Task
-	1.	Type the task in the input field.
-	2.	Click the + button to add the task to the list.
+1. Type the task in the input field.
+2.	Click the + button to add the task to the list.
 
 Edit Task
-	1.	Long-press on a task to open the options menu.
-	2.	Select Edit to update the task.
+1.	Long-press on a task to open the options menu.
+2.	Select Edit to update the task.
 
 Delete Task
-	1.	Click the X button to delete the task with an animation.
+1.	Click the X button to delete the task with an animation.
 
 Toggle Task Completion
-	1.	Tap on a task to toggle its completion status.
-    2.  Long hold on task to edit
+1.	Tap on a task to toggle its completion status.
+2.  Long hold on task to edit
