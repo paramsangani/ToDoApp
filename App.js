@@ -18,9 +18,6 @@ export default function App() {
   const [editingTaskId, setEditingTaskId] = useState(null);
   const [editingText, setEditingText] = useState('');
 
-  const fadeAnim = useRef(new Animated.Value(50)).current; // Fade animation value
-  const positionAnim = useRef(new Animated.Value(50)).current; // Slide animation value
-
   useEffect(() => {
     const loadTasks = async () => {
       try {
@@ -50,37 +47,19 @@ export default function App() {
 
   const addTask = () => {
     if (task.trim()) {
-      const newTask = { id: Date.now().toString(), text: task, completed: false };
+      const newTask = {
+        id: Date.now().toString(),
+        text: task,
+        completed: false,
+        isNew: true,
+      };
       setTasks((prevTasks) => [...prevTasks, newTask]);
       setTask('');
-
-      // Trigger animation for the new task
-      Animated.parallel([
-        Animated.timing(fadeAnim, {
-          toValue: 1,
-          duration: 500,
-          useNativeDriver: true,
-        }),
-        Animated.timing(positionAnim, {
-          toValue: 1,
-          duration: 500,
-          useNativeDriver: true,
-        }),
-      ]).start();
     }
   };
 
   const deleteTask = (taskId) => {
-    // Animation before removing the task
-    const deleteAnim = new Animated.Value(1);
-
-    Animated.timing(deleteAnim, {
-      toValue: 0,
-      duration: 500,
-      useNativeDriver: true,
-    }).start(() => {
-      setTasks((prevTasks) => prevTasks.filter((item) => item.id !== taskId));
-    });
+    setTasks((prevTasks) => prevTasks.filter((item) => item.id !== taskId));
   };
 
   const toggleTask = (taskId) => {
@@ -139,61 +118,90 @@ export default function App() {
         </TouchableOpacity>
       </View>
       <FlatList
-  data={tasks}
-  renderItem={({ item }) => {
-    const deleteAnim = new Animated.Value(1); // Local animation for each task
-    return (
-      <Animated.View
-        style={{
-          opacity: deleteAnim,
-          transform: [
-            {
-              scale: deleteAnim,
-            },
-          ],
-        }}
-      >
-        <View style={styles.taskContainer}>
-          {editingTaskId === item.id ? (
-            // Show TextInput for editing the task
-            <TextInput
-              style={styles.editInput}
-              value={editingText}
-              onChangeText={(text) => setEditingText(text)}
-              onSubmitEditing={updateTask} // Update task on submit
-              autoFocus
-            />
-          ) : (
-            // Show task text for non-editing tasks
-            <Text
-              style={[
-                styles.taskText,
-                item.completed && styles.completedTaskText,
-              ]}
-              onPress={() => toggleTask(item.id)} // Toggle completed status
-              onLongPress={() => longPressMenu(item.id, item.text)} // Edit options on long press
-            >
-              {item.text}
-            </Text>
-          )}
-          <TouchableOpacity
-            onPress={() => {
-              // Trigger delete animation
-              Animated.timing(deleteAnim, {
-                toValue: 0,
-                duration: 500,
-                useNativeDriver: true,
-              }).start(() => deleteTask(item.id));
-            }}
-          >
-            <Text style={styles.deleteButton}>X</Text>
-          </TouchableOpacity>
-        </View>
-      </Animated.View>
-    );
-  }}
-  keyExtractor={(item) => item.id}
-/>
+        data={tasks}
+        renderItem={({ item }) => (
+          <TaskItem
+            item={item}
+            onToggle={() => toggleTask(item.id)}
+            onLongPress={() => longPressMenu(item.id, item.text)}
+            onDelete={() => deleteTask(item.id)}
+            editingTaskId={editingTaskId}
+            editingText={editingText}
+            setEditingText={setEditingText}
+            updateTask={updateTask}
+          />
+        )}
+        keyExtractor={(item) => item.id}
+      />
     </SafeAreaView>
   );
 }
+
+const TaskItem = ({
+  item,
+  onToggle,
+  onLongPress,
+  onDelete,
+  editingTaskId,
+  editingText,
+  setEditingText,
+  updateTask,
+}) => {
+  const addAnim = useRef(new Animated.Value(item.isNew ? 0 : 1)).current;
+  const deleteAnim = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    if (item.isNew) {
+      Animated.timing(addAnim, {
+        toValue: 1,
+        duration: 500,
+        useNativeDriver: true,
+      }).start(() => {
+        item.isNew = false; // Be cautious with mutating props
+      });
+    }
+  }, []);
+
+  const handleDelete = () => {
+    Animated.timing(deleteAnim, {
+      toValue: 0,
+      duration: 500,
+      useNativeDriver: true,
+    }).start(() => onDelete());
+  };
+
+  return (
+    <Animated.View
+      style={{
+        opacity: Animated.multiply(addAnim, deleteAnim),
+        transform: [{ scale: Animated.multiply(addAnim, deleteAnim) }],
+      }}
+    >
+      <View style={styles.taskContainer}>
+        {editingTaskId === item.id ? (
+          <TextInput
+            style={styles.editInput}
+            value={editingText}
+            onChangeText={setEditingText}
+            onSubmitEditing={updateTask}
+            autoFocus
+          />
+        ) : (
+          <Text
+            style={[
+              styles.taskText,
+              item.completed && styles.completedTaskText,
+            ]}
+            onPress={onToggle}
+            onLongPress={onLongPress}
+          >
+            {item.text}
+          </Text>
+        )}
+        <TouchableOpacity onPress={handleDelete}>
+          <Text style={styles.deleteButton}>X</Text>
+        </TouchableOpacity>
+      </View>
+    </Animated.View>
+  );
+};

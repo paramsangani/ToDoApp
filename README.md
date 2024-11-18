@@ -64,7 +64,7 @@ This project uses the following major dependencies:
 - React Native: Framework for building native applications.
 - @react-native-async-storage/async-storage: To persist tasks locally.
 - Animated: For task animations.
-Install all dependencies via `npm install`
+- Install all dependencies via `npm install`
 
 ## How it works
 
